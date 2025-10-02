@@ -2,13 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "freejobsearcher-backend",
   "main": "src/index.ts",
-  "compatibility_date": "2025-10-02"
+  "compatibility_date": "2025-10-02",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
+  "vars": {
+    "FIREBASE_API_KEY": "AIzaSyC4GXq2ePI7MBGCMl_f3ScPr9g9-63r3z4"
+  },
   // "kv_namespaces": [
   //   {
   //     "binding": "MY_KV_NAMESPACE",

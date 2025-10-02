@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@hono/firebase-auth':
+        specifier: ^1.4.2
+        version: 1.4.2(hono@4.9.9)
       hono:
         specifier: ^4.9.9
         version: 4.9.9
@@ -218,6 +221,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@hono/firebase-auth@1.4.2':
+    resolution: {integrity: sha512-KSm8c+KPpKB+s5GRQt7xcVuOSF1CsetophaURcRzxElgthHY8hMRFFa/Sy2DHpL11In1TibZtLLZyxcJgmpzkQ==}
+    peerDependencies:
+      hono: '*'
+
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
@@ -400,6 +408,9 @@ packages:
 
   exsolve@1.0.7:
     resolution: {integrity: sha512-VO5fQUzZtI6C+vx4w/4BWJpg3s/5l+6pRQEHzFRM8WFi4XffSP1Z+4qi7GbjWbvRQEbdIco5mIMq+zX4rPuLrw==}
+
+  firebase-auth-cloudflare-workers@2.0.6:
+    resolution: {integrity: sha512-KYfI3eM3/gDxEIGgN6lVUDhDruKnnRDaCMlN8HR5kRg7SppFTmktlrjxXHoTEEbkEC7yH721gyZ+ZUm8Z+675A==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -619,6 +630,11 @@ snapshots:
   '@esbuild/win32-x64@0.25.4':
     optional: true
 
+  '@hono/firebase-auth@1.4.2(hono@4.9.9)':
+    dependencies:
+      firebase-auth-cloudflare-workers: 2.0.6
+      hono: 4.9.9
+
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
       '@img/sharp-libvips-darwin-arm64': 1.0.4
@@ -780,6 +796,8 @@ snapshots:
   exit-hook@2.2.1: {}
 
   exsolve@1.0.7: {}
+
+  firebase-auth-cloudflare-workers@2.0.6: {}
 
   fsevents@2.3.3:
     optional: true
