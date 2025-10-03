@@ -1,6 +1,7 @@
 {
   "name": "freejobsearcher-backend",
   "type": "module",
+  "version": "1.0",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
@@ -8,9 +9,12 @@
   },
   "dependencies": {
     "@hono/firebase-auth": "^1.4.2",
-    "hono": "^4.9.9"
+    "@hono/swagger-ui": "^0.5.2",
+    "@hono/zod-openapi": "^1.1.3",
+    "hono": "^4.9.9",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
-    "wrangler": "^4.4.0"
+    "wrangler": "^4.41.0"
   }
 }

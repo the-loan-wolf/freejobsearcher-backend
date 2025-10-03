@@ -1,12 +1,24 @@
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import route from './routes/routes'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import packageJSON from "../package.json";
+import { swaggerUI } from '@hono/swagger-ui';
+import auth from './routes/auth';
 
-const app = new Hono()
+const app = new OpenAPIHono({ strict: false });
 
-// CORS should be called before the route
-app.use('/*', cors())
+app.doc("/doc", {
+  openapi: "3.0.0",
+  info: {
+    version: packageJSON.version,
+    title: "FreeJobSearcher APIs",
+  },
+});
 
-app.route('/', route);
+app.get(
+  "/reference",
+  swaggerUI({
+    url: "/doc",
+  }),
+);
 
+app.route('/', auth)
 export default app
