@@ -5,7 +5,7 @@ const auth = new OpenAPIHono();
 
 // ----------------- Schemas -----------------
 const AuthRequestSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string(),
 })
 
