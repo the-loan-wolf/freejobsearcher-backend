@@ -7,7 +7,8 @@
   //   "nodejs_compat"
   // ],
   "vars": {
-    "FIREBASE_API_KEY": "AIzaSyC4GXq2ePI7MBGCMl_f3ScPr9g9-63r3z4"
+    "FIREBASE_API_KEY": "AIzaSyDtJBeJagcEaeLi29tv9-FsTc6tmhdB6yU",
+    "FIREBASE_PROJECT_ID": "freejob-abedb"
   },
   // "kv_namespaces": [
   //   {
