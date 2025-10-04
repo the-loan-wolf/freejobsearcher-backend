@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import packageJSON from "../package.json";
 import { swaggerUI } from '@hono/swagger-ui';
 import auth from './routes/auth';
+import { db } from './routes/db';
 
 const app = new OpenAPIHono({ strict: false });
 
@@ -21,4 +22,5 @@ app.get(
 );
 
 app.route('/', auth)
+app.route('/', db)
 export default app
