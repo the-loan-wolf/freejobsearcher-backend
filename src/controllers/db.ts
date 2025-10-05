@@ -1,7 +1,17 @@
-import { Context } from "hono";
-import { parseFirestoreFields } from "../lib/firestore-helper";
+// He Haven't add security checks yet!
+// right now anyone can access as much feed data as much they want
+// we have to check if a user is signed in or not and then allow
+// more than 5 feed data!
 
-export const feedHandler = async (c: Context) => {
+import { RouteHandler } from "@hono/zod-openapi";
+import { parseFirestoreFields } from "../lib/firestore-helper";
+import { userFeedRoute } from "../routes/db";
+import { AppEnv, FirestoreDocument } from "../lib/types";
+
+export const feedHandler: RouteHandler<
+  typeof userFeedRoute,
+  { Bindings: AppEnv }
+> = async (c) => {
   const token = c.req.header("Authorization");
   const { limit, country, search } = c.req.valid("query");
 
@@ -10,65 +20,147 @@ export const feedHandler = async (c: Context) => {
 
   // Build Firestore query (using REST API)
   const projectId = c.env.FIREBASE_PROJECT_ID;
-  const queryBody = {
+
+  type FirestoreFilter =
+    | {
+        fieldFilter: {
+          field: { fieldPath: string };
+          op: string;
+          value: { stringValue: string };
+        };
+      }
+    | {
+        compositeFilter: {
+          op: "AND" | "OR";
+          filters: FirestoreFilter[];
+        };
+      };
+
+  interface FirestoreQueryBody {
     structuredQuery: {
-      from: [{ collectionId: "users" }],
+      from: { collectionId: string }[];
+      limit: number;
+      where?: FirestoreFilter;
+    };
+  }
+
+  const filters: FirestoreFilter[] = [];
+
+  // Optional filters
+  if (country) {
+    filters.push({
+      fieldFilter: {
+        field: { fieldPath: "country" },
+        op: "EQUAL",
+        value: { stringValue: country },
+      },
+    });
+  }
+
+  if (search) {
+    filters.push({
+      fieldFilter: {
+        field: { fieldPath: "name" },
+        op: "GREATER_THAN_OR_EQUAL",
+        value: { stringValue: search },
+      },
+    });
+  }
+
+  // Build query safely
+  const queryBody: FirestoreQueryBody = {
+    structuredQuery: {
+      from: [{ collectionId: "resumes" }],
       limit: maxLimit,
-      where: country
+      ...(filters.length > 0
         ? {
-            fieldFilter: {
-              field: { fieldPath: "country" },
-              op: "EQUAL",
-              value: { stringValue: country },
-            },
+            where:
+              filters.length === 1
+                ? filters[0]
+                : { compositeFilter: { op: "AND", filters } },
           }
-        : undefined,
+        : {}),
     },
   };
 
   const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+
   try {
-    console.log(url);
     const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: token } : {}),
       },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: "resumes" }],
-          limit: 5,
-        },
-      }),
+      body: JSON.stringify(queryBody),
     });
-    type FirestoreDocument = Array<{
-      document: {
-        name: string;
-        fields: { [key: string]: any };
-        createTime: string;
-        updateTime: string;
-      };
-      readTime: string;
-    }>;
+
+    // DOCS:
+    // console.log(JSON.stringify(queryBody))
+    // example output:
+    // {
+    //   structuredQuery: {
+    //     from: [{ collectionId: "resumes" }],
+    //     limit: 5,
+    //     where: {
+    //       compositeFilter: {
+    //         op: "AND",
+    //         filters: [
+    //           {
+    //             fieldFilter: {
+    //               field: { fieldPath: "country" },
+    //               op: "EQUAL",
+    //               value: { stringValue: "US" },
+    //             },
+    //           },
+    //           {
+    //             fieldFilter: {
+    //               field: { fieldPath: "name" },
+    //               op: "GREATER_THAN_OR_EQUAL",
+    //               value: { stringValue: "alice" },
+    //             },
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   },
+    // };
+
+    if (!res.ok) {
+      const errorBody = await res.clone().text();
+      console.error("Error:", {
+        status: res.status,
+        statusText: res.statusText,
+        body: errorBody,
+      });
+      throw new Error(`Error: ${res.status} ${res.statusText}`);
+    }
+
     const data: FirestoreDocument = await res.json();
 
     const resumes = data
       .filter((r) => r.document) // skip empty rows
       .map((r) => {
         const doc = r.document;
-        const data = parseFirestoreFields(doc.fields);
+        const data = parseFirestoreFields(doc.fields) || {};
+        const profile = data.profile || {};
 
         return {
           id: doc.name.split("/").pop(),
-          ...data.profile,
-          skills: data.skills,
+          name: profile.name || "Unknown",
+          role: profile.role || "",
+          location: profile.location || "",
+          salary: profile.salary || "",
+          image: profile.image || "",
+          experience: profile.experience || "",
+          bio: profile.bio || "",
+          skills: data.skills || [],
         };
       });
 
-    // console.log(JSON.stringify(resumes, null, 2));
-    return c.json({ resumes });
+    return c.json(resumes);
   } catch (error) {
     console.log(error);
+    return c.json({ error: (error as Error).message }, 500);
   }
 };

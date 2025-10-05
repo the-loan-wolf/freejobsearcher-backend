@@ -1,7 +1,8 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { feedHandler } from "../controllers/db";
+import { AppEnv } from "../lib/types";
 
-export const db = new OpenAPIHono();
+export const db = new OpenAPIHono<{ Bindings: AppEnv }>();
 
 // Define your response schema
 const feedData = z.array(
@@ -64,7 +65,7 @@ export const userFeedRoute = createRoute({
   },
   responses: {
     200: {
-      description: "Fetch user feed (5 users public, more if authenticated)",
+      description: "Fetch user feed (5 users public, more if signed-in)",
       content: {
         "application/json": {
           schema: feedData,
