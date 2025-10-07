@@ -1,4 +1,4 @@
-// He Haven't add security checks yet!
+// He Haven't added security checks yet!
 // right now anyone can access as much feed data as much they want
 // we have to check if a user is signed in or not and then allow
 // more than 5 feed data!
