@@ -27,3 +27,23 @@ export function parseFirestoreFields(
   }
   return result;
 }
+
+// Utility to transform JS object into Firestore REST schema fields
+const mapToFirestoreFields = (obj: Record<string, any>) => {
+  const fields: Record<string, any> = {};
+  for (const key in obj) {
+    const val = obj[key];
+    if (typeof val === "string") fields[key] = { stringValue: val };
+    else if (typeof val === "number") fields[key] = { integerValue: val };
+    else if (typeof val === "boolean") fields[key] = { booleanValue: val };
+    else if (Array.isArray(val))
+      fields[key] = {
+        arrayValue: { values: val.map((v) => ({ stringValue: String(v) })) },
+      };
+    else if (typeof val === "object" && val !== null)
+      fields[key] = { mapValue: { fields: mapToFirestoreFields(val) } };
+  }
+  return fields;
+};
+
+export { mapToFirestoreFields };

@@ -3,6 +3,7 @@ import packageJSON from "../package.json";
 import auth from "./routes/auth";
 import { db } from "./routes/db";
 import { Scalar } from "@scalar/hono-api-reference";
+import { resume } from "./routes/resume";
 
 const app = new OpenAPIHono({ strict: false });
 
@@ -29,4 +30,5 @@ app.get("/favicon.ico", (c) => {
 
 app.route("/", auth);
 app.route("/", db);
+app.route("/", resume);
 export default app;
