@@ -1,3 +1,6 @@
+import z from "zod";
+import { resumeSchema } from "../routes/resume/resume";
+
 // Recursively converts Firestore "fields" objects into plain JS
 export function parseFirestoreValue(value: any): any {
   if (value === undefined || value === null) return null;
@@ -46,4 +49,43 @@ const mapToFirestoreFields = (obj: Record<string, any>) => {
   return fields;
 };
 
-export { mapToFirestoreFields };
+function firestoreDocMaker(body: z.infer<typeof resumeSchema>) {
+  const now = new Date().toISOString();
+
+  // Firestore expects field values wrapped in Firestore data types
+  const resumeData = {
+    fields: {
+      profile: { mapValue: { fields: mapToFirestoreFields(body.profile) } },
+      contact: { mapValue: { fields: mapToFirestoreFields(body.contact) } },
+      education: {
+        arrayValue: {
+          values: body.education.map((e: any) => ({
+            mapValue: { fields: mapToFirestoreFields(e) },
+          })),
+        },
+      },
+      workHistory: {
+        arrayValue: {
+          values: body.workHistory.map((w: any) => ({
+            mapValue: { fields: mapToFirestoreFields(w) },
+          })),
+        },
+      },
+      achievements: {
+        arrayValue: {
+          values: body.achievements.map((a: string) => ({ stringValue: a })),
+        },
+      },
+      skills: {
+        arrayValue: {
+          values: body.skills.map((s: string) => ({ stringValue: s })),
+        },
+      },
+      createdAt: { timestampValue: now },
+      updatedAt: { timestampValue: now },
+    },
+  };
+  return resumeData;
+}
+
+export { mapToFirestoreFields, firestoreDocMaker };
