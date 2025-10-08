@@ -1,6 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import packageJSON from "../package.json";
-import { swaggerUI } from "@hono/swagger-ui";
 import auth from "./routes/auth";
 import { db } from "./routes/db";
 import { Scalar } from "@scalar/hono-api-reference";
@@ -14,13 +13,6 @@ app.doc("/doc", {
     title: "FreeJobSearcher APIs",
   },
 });
-
-app.get(
-  "/reference",
-  swaggerUI({
-    url: "/doc",
-  })
-);
 
 app.get(
   "/",
