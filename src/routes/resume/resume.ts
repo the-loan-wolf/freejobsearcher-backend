@@ -95,13 +95,8 @@ export const createResumeRoute = createRoute({
   method: "post",
   path: "/resume",
   operationId: "createResume",
-  description: `This route adds or update logged in user's resume.
-    Add your idToken in header as following to work:
-    Authorization: Bearer idToken`,
+  description: `This route adds or update logged in user's resume.`,
   request: {
-    headers: z.object({
-      Authorization: z.string().describe("Bearer token for authentication"),
-    }),
     body: {
       content: {
         "application/json": {
