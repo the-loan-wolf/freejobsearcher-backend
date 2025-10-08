@@ -8,8 +8,15 @@
   // ],
   "vars": {
     "FIREBASE_API_KEY": "AIzaSyDtJBeJagcEaeLi29tv9-FsTc6tmhdB6yU",
-    "FIREBASE_PROJECT_ID": "freejob-abedb"
+    "FIREBASE_PROJECT_ID": "freejob-abedb",
+    "PUBLIC_JWK_CACHE_KEY": "google-jwk"
   },
+  "kv_namespaces": [
+    {
+      "binding": "PUBLIC_JWK_CACHE_KV",
+      "id": "991dbae0e218494dbbf4ff583237e98a"
+    }
+  ]
   // "kv_namespaces": [
   //   {
   //     "binding": "MY_KV_NAMESPACE",
