@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { getCookie } from "hono/cookie";
+import { getCookie, setCookie } from "hono/cookie";
 
 // Helper to call Firebase Auth REST API
 async function callFirebaseAuth(apiKey: string, endpoint: string, body: any) {
@@ -30,20 +30,22 @@ const authlogin = async (c: Context) => {
     );
 
     // Set ID token cookie (expires in ~1h)
-    c.header(
-      "Set-Cookie",
-      `idToken=${result.idToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${result.expiresIn}`
-    );
+    setCookie(c, "idToken", result.idToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      path: "/",
+      maxAge: Number(result.expiresIn),
+    });
 
     // Set refresh token cookie (long-lived, e.g. 30 days)
-    c.header(
-      "Set-Cookie",
-      `refreshToken=${
-        result.refreshToken
-      }; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
-        60 * 60 * 24 * 30
-      }`
-    );
+    setCookie(c, "refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    });
 
     return c.json({ message: "Login successful", ...result });
   } catch (err: any) {
@@ -92,10 +94,13 @@ const authRefresh = async (c: Context) => {
   }
 
   // Set new ID token cookie
-  c.header(
-    "Set-Cookie",
-    `idToken=${data.id_token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${data.expires_in}`
-  );
+  setCookie(c, "idToken", data.id_token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
+    path: "/",
+    maxAge: Number(data.expires_in),
+  });
 
   return c.json({ message: "Token refreshed", ...data });
 };
