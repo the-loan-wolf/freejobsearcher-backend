@@ -23,6 +23,10 @@ app.get(
   })
 );
 
+app.get("/favicon.ico", (c) => {
+  return c.redirect("https://scalar.com/favicon.svg");
+});
+
 app.route("/", auth);
 app.route("/", db);
 export default app;
