@@ -2,8 +2,9 @@ import { firestoreDocMaker } from "../lib/firestore-helper";
 import { getFirebaseToken } from "../middlewares/firebase-auth";
 import { RouteHandler, z } from "@hono/zod-openapi";
 import { createResumeRoute, resumeSchema } from "../routes/resume/resume";
-import { AppEnv } from "../lib/types";
+import { AppEnv, FirestoreDocumentSchema } from "../lib/types";
 import { refreshTokenFn } from "./auth";
+import { RefreshResponseSchema } from "../routes/auth";
 
 /**
  * Adds a new resume document to Firestore via REST API.
@@ -21,7 +22,8 @@ export const addResumeHandler: RouteHandler<
   const uid = idToken?.uid;
   const response = await refreshTokenFn(c);
   if (!response) return c.json({ error: "missing refresh token" }, 500);
-  const res = await response.json();
+  const unparsedData = await response.json();
+  const res = RefreshResponseSchema.parse(unparsedData);
   const accessToken = res.access_token;
 
   try {
@@ -48,7 +50,8 @@ export const addResumeHandler: RouteHandler<
       return c.json({ error: "Failed to upload resume" }, 500);
     }
 
-    const result = await response.json();
+    const unparsedData = await response.json();
+    const result = FirestoreDocumentSchema.parse(unparsedData);
     const id = result.name?.split("/").pop();
 
     return c.json({ id, message: "Resume uploaded successfully" }, 201);

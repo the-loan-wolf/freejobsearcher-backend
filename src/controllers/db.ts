@@ -6,7 +6,7 @@
 import { RouteHandler } from "@hono/zod-openapi";
 import { parseFirestoreFields } from "../lib/firestore-helper";
 import { userFeedRoute } from "../routes/db";
-import { AppEnv, FirestoreDocument } from "../lib/types";
+import { AppEnv, FirestoreDocumentArraySchema } from "../lib/types";
 
 export const feedHandler: RouteHandler<
   typeof userFeedRoute,
@@ -136,7 +136,9 @@ export const feedHandler: RouteHandler<
       throw new Error(`Error: ${res.status} ${res.statusText}`);
     }
 
-    const data: FirestoreDocument = await res.json();
+    // const data = await res.json();
+    const unparsedData = await res.json();
+    const data = FirestoreDocumentArraySchema.parse(unparsedData);
 
     const resumes = data
       .filter((r) => r.document) // skip empty rows

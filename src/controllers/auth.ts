@@ -1,8 +1,19 @@
 import { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
+import z from "zod";
+import {
+  LoginResponseSchema,
+  RefreshResponseSchema,
+  SignupResponseSchema,
+} from "../routes/auth";
 
 // Helper to call Firebase Auth REST API
-async function callFirebaseAuth(apiKey: string, endpoint: string, body: any) {
+async function callFirebaseAuth<T extends z.ZodTypeAny>(
+  apiKey: string,
+  endpoint: string,
+  body: unknown,
+  schema: T
+): Promise<z.infer<T>> {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:${endpoint}?key=${apiKey}`;
   const res = await fetch(url, {
     method: "POST",
@@ -11,7 +22,9 @@ async function callFirebaseAuth(apiKey: string, endpoint: string, body: any) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(JSON.stringify(data));
-  return data;
+  console.log(JSON.stringify(data))
+  // Validate the successful response
+  return schema.parse(data);
 }
 
 const authlogin = async (c: Context) => {
@@ -26,7 +39,8 @@ const authlogin = async (c: Context) => {
     const result = await callFirebaseAuth(
       c.env.FIREBASE_API_KEY,
       "signInWithPassword",
-      { email, password, returnSecureToken: true }
+      { email, password, returnSecureToken: true },
+      LoginResponseSchema
     );
 
     // Set ID token cookie (expires in ~1h)
@@ -47,7 +61,7 @@ const authlogin = async (c: Context) => {
       maxAge: 60 * 60 * 24 * 30,
     });
 
-    return c.json({ message: "Login successful", ...result });
+    return c.json({ ...result });
   } catch (err: any) {
     return c.json({ error: err.message }, 400);
   }
@@ -57,11 +71,16 @@ const authSignup = async (c: Context) => {
   const { email, password } = await c.req.json();
   const apiKey = c.env.FIREBASE_API_KEY;
   try {
-    const result = await callFirebaseAuth(apiKey, "signUp", {
-      email,
-      password,
-      returnSecureToken: true,
-    });
+    const result = await callFirebaseAuth(
+      apiKey,
+      "signUp",
+      {
+        email,
+        password,
+        returnSecureToken: true,
+      },
+      SignupResponseSchema
+    );
     // result contains idToken, refreshToken, localId (UID)
     // Set ID token cookie (expires in ~1h)
     c.header(
@@ -78,7 +97,7 @@ const authSignup = async (c: Context) => {
         60 * 60 * 24 * 30
       }`
     );
-    return c.json({ message: "Signup successful", ...result });
+    return c.json({ ...result });
   } catch (err: any) {
     return c.json({ error: err.message }, 400);
   }
@@ -88,10 +107,11 @@ const authRefresh = async (c: Context) => {
   const res = await refreshTokenFn(c);
   if (!res) return c.json({ error: "missing refresh token" }, 400);
 
-  const data = await res.json();
+  const response = await res.json();
   if (!res.ok) {
-    return c.json({ error: data }, 400);
+    return c.json({ error: response }, 400);
   }
+  const data = RefreshResponseSchema.parse(response);
 
   // Set new ID token cookie
   setCookie(c, "idToken", data.id_token, {
@@ -102,7 +122,7 @@ const authRefresh = async (c: Context) => {
     maxAge: Number(data.expires_in),
   });
 
-  return c.json({ message: "Token refreshed", ...data });
+  return c.json({ ...data });
 };
 
 const refreshTokenFn = async (c: Context) => {

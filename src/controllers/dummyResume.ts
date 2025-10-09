@@ -1,7 +1,7 @@
 import { firestoreDocMaker } from "../lib/firestore-helper";
 import { RouteHandler, z } from "@hono/zod-openapi";
 import { resumeSchema } from "../routes/resume/resume";
-import { AppEnv } from "../lib/types";
+import { AppEnv, FirestoreDocumentSchema } from "../lib/types";
 import { createDummyResumeRoute } from "../routes/resume/dummyResume";
 
 /**
@@ -37,7 +37,8 @@ export const addDummyResumeHandler: RouteHandler<
       return c.json({ error: "Failed to upload resume" }, 500);
     }
 
-    const result = await response.json();
+    const unparsedData = await response.json();
+    const result = FirestoreDocumentSchema.parse(unparsedData);
     const id = result.name?.split("/").pop();
 
     return c.json({ id, message: "Resume uploaded successfully" }, 201);
