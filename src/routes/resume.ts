@@ -1,7 +1,7 @@
 import {
   verifyFirebaseAuth,
   VerifyFirebaseAuthConfig,
-} from "@hono/firebase-auth";
+} from "../middlewares/firebase-auth";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { AppEnv } from "../lib/types";
 import { createResumeRoute } from "./resume/resume";

@@ -1,5 +1,5 @@
 import { firestoreDocMaker } from "../lib/firestore-helper";
-import { getFirebaseToken } from "@hono/firebase-auth";
+import { getFirebaseToken } from "../middlewares/firebase-auth";
 import { RouteHandler, z } from "@hono/zod-openapi";
 import { createResumeRoute, resumeSchema } from "../routes/resume/resume";
 import { AppEnv } from "../lib/types";
