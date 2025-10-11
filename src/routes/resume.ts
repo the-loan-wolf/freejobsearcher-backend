@@ -8,6 +8,8 @@ import { createResumeRoute } from "./resume/resume";
 import { addResumeHandler } from "../controllers/resume";
 import { createDummyResumeRoute } from "./resume/dummyResume";
 import { addDummyResumeHandler } from "../controllers/dummyResume";
+import { createFetchResumeRoute } from "./resume/fetchResume";
+import { addFetchResumeHandler } from "../controllers/fetchResume";
 
 const config: VerifyFirebaseAuthConfig = {
   // specify your firebase project ID.
@@ -18,3 +20,4 @@ export const resume = new OpenAPIHono<{ Bindings: AppEnv }>();
 resume.use("/resume", verifyFirebaseAuth(config));
 resume.openapi(createResumeRoute, addResumeHandler);
 resume.openapi(createDummyResumeRoute, addDummyResumeHandler);
+resume.openapi(createFetchResumeRoute, addFetchResumeHandler);
