@@ -4,8 +4,10 @@ import auth from "./routes/auth";
 import { db } from "./routes/db";
 import { Scalar } from "@scalar/hono-api-reference";
 import { resume } from "./routes/resume";
+import { cors } from "hono/cors";
 
 const app = new OpenAPIHono({ strict: false });
+app.use('*', cors());
 
 app.doc("/doc", {
   openapi: "3.0.0",
