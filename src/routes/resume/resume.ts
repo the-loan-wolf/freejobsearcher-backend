@@ -13,7 +13,7 @@ export const resumeSchemaExample = {
     experience: "3+ years",
     bio: "Passionate UI/UX designer",
   },
-  contact: [{ phone: "+91 98765 43210" }, { email: "example@gmail.com" }],
+  contact: { phones: ["+91 98765 43210"], emails: ["example@gmail.com"] },
   education: [
     {
       degree: "Bachelor of Design",
@@ -59,10 +59,10 @@ const profileSchema = z.object({
   bio: z.string(),
 });
 
-const contactSchema = z.union([
-  z.object({ phone: z.string() }),
-  z.object({ email: z.email() }),
-]);
+const contactSchema = z.object({
+  phones: z.array(z.string()),
+  emails: z.array(z.email()),
+});
 
 const educationSchema = z.object({
   degree: z.string(),
@@ -81,7 +81,7 @@ const workSchema = z.object({
 // ------------------------------
 export const resumeSchema = z.object({
   profile: profileSchema,
-  contact: z.array(contactSchema),
+  contact: contactSchema,
   education: z.array(educationSchema),
   workHistory: z.array(workSchema),
   achievements: z.array(z.string()),

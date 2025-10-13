@@ -56,7 +56,26 @@ function firestoreDocMaker(body: z.infer<typeof resumeSchema>) {
   const resumeData = {
     fields: {
       profile: { mapValue: { fields: mapToFirestoreFields(body.profile) } },
-      contact: { mapValue: { fields: mapToFirestoreFields(body.contact) } },
+      contact: {
+        mapValue: {
+          fields: {
+            phones: {
+              arrayValue: {
+                values: body.contact.phones.map((p: string) => ({
+                  stringValue: p,
+                })),
+              },
+            },
+            emails: {
+              arrayValue: {
+                values: body.contact.emails.map((e: string) => ({
+                  stringValue: e,
+                })),
+              },
+            },
+          },
+        },
+      },
       education: {
         arrayValue: {
           values: body.education.map((e: any) => ({
